@@ -8,8 +8,6 @@ public class Application {
     private String assessmentLink;
     private String interviewSchedule;
     private String notes;
-    
-    // NEW FIELDS
     private String appliedDate;
     private String deadline;
     private String location;
@@ -27,6 +25,20 @@ public class Application {
         this.appliedDate = appliedDate;
         this.deadline = deadline;
         this.location = location;
+    }
+
+    // This converts Java Object into a JSON string
+    public String toJson() {
+        return String.format(
+            "{\"id\": %d, \"companyName\": \"%s\", \"jobRole\": \"%s\", \"status\": \"%s\", \"location\": \"%s\", \"appliedDate\": \"%s\", \"deadline\": \"%s\"}",
+            id, 
+            companyName != null ? companyName : "", 
+            jobRole != null ? jobRole : "", 
+            status != null ? status : "", 
+            location != null ? location : "", 
+            appliedDate != null ? appliedDate : "", 
+            deadline != null ? deadline : ""
+        );
     }
 
     // Getters

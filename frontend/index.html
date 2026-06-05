@@ -39,7 +39,6 @@
           </div>
         </div>
 
-        <!-- EXPANDED APPLICATION FORM -->
         <div class="add-form-container">
           <h3>➕ Add New Application</h3>
           <form id="add-app-form" onsubmit="submitApplication(event)">
@@ -117,6 +116,9 @@
     </div>
 
     <script>
+      // CENTRALIZED API URL - POINTS TO YOUR RENDER BACKEND
+      const API_URL =
+        "https://jobtracker-corejava.onrender.com/api/applications";
       let allApplications = [];
 
       function toggleDropdown(element, event) {
@@ -153,14 +155,11 @@
       async function confirmDelete() {
         if (!applicationToDeleteId) return;
         try {
-          const response = await fetch(
-            "http://localhost:8080/api/applications",
-            {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: String(applicationToDeleteId) }),
-            },
-          );
+          const response = await fetch(API_URL, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: String(applicationToDeleteId) }),
+          });
           if (response.ok) fetchPipelineData();
         } catch (error) {
           console.error("Error:", error);
@@ -184,16 +183,16 @@
 
       async function fetchPipelineData() {
         try {
-          const response = await fetch(
-            "http://localhost:8080/api/applications",
-          );
+          const response = await fetch(API_URL);
           allApplications = await response.json();
           updateStatistics(allApplications);
           const activeBtn = document.querySelector(".filter-btn.active");
           if (activeBtn) filterApplications(activeBtn.innerText, false);
           else renderApplications(allApplications);
         } catch (error) {
-          console.error("Server Error");
+          console.error("Server Error: Unable to fetch data from", API_URL);
+          document.getElementById("applications-container").innerHTML =
+            "<p>Error connecting to server. Please check Render logs.</p>";
         }
       }
 
@@ -207,14 +206,11 @@
           deadline: document.getElementById("deadlineInput").value,
         };
         try {
-          const response = await fetch(
-            "http://localhost:8080/api/applications",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(newApp),
-            },
-          );
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newApp),
+          });
           if (response.ok) {
             document.getElementById("add-app-form").reset();
             fetchPipelineData();
@@ -230,14 +226,11 @@
         selectedDiv.className = `dropdown-selected ${newStatus.toLowerCase()}`;
         selectedDiv.innerText = newStatus.toUpperCase();
         try {
-          const response = await fetch(
-            "http://localhost:8080/api/applications",
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: String(id), status: newStatus }),
-            },
-          );
+          const response = await fetch(API_URL, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: String(id), status: newStatus }),
+          });
           if (response.ok) {
             const idx = allApplications.findIndex((a) => a.id === id);
             if (idx > -1) {
@@ -250,48 +243,43 @@
         }
       }
 
-      // --- UPDATED RENDER CARDS TO SHOW METADATA ---
       function renderApplications(apps) {
         const container = document.getElementById("applications-container");
         container.innerHTML = "";
         if (apps.length === 0) {
           container.innerHTML = `
-                    <div class="empty-state-container">
-                        <div class="empty-state-icon">📭</div>
-                        <h3>No pipeline data found</h3>
-                        <p>It's quiet here. Add a new application above or change your filter to see your progress.</p>
-                    </div>
-                `;
+            <div class="empty-state-container">
+                <div class="empty-state-icon">📭</div>
+                <h3>No pipeline data found</h3>
+                <p>It's quiet here. Add a new application above or change your filter.</p>
+            </div>`;
           return;
         }
-
         apps.forEach((app) => {
           const currentStatus = (app.status || "Pending").toLowerCase();
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
-                    <div class="card-header">
-                        <h3>${app.companyName}</h3>
-                        <div class="header-actions">
-                            <div class="custom-dropdown" onclick="toggleDropdown(this, event)">
-                                <div class="dropdown-selected ${currentStatus}">${currentStatus.toUpperCase()}</div>
-                                <div class="dropdown-options">
-                                    <div onclick="updateStatus(${app.id}, 'Pending', this.parentElement.parentElement)">PENDING</div>
-                                    <div onclick="updateStatus(${app.id}, 'Interviewing', this.parentElement.parentElement)">INTERVIEWING</div>
-                                    <div onclick="updateStatus(${app.id}, 'Rejected', this.parentElement.parentElement)">REJECTED</div>
-                                </div>
-                            </div>
-                            <button class="delete-btn" onclick="deleteApplication(${app.id})" title="Delete">🗑️</button>
+            <div class="card-header">
+                <h3>${app.companyName}</h3>
+                <div class="header-actions">
+                    <div class="custom-dropdown" onclick="toggleDropdown(this, event)">
+                        <div class="dropdown-selected ${currentStatus}">${currentStatus.toUpperCase()}</div>
+                        <div class="dropdown-options">
+                            <div onclick="updateStatus(${app.id}, 'Pending', this.parentElement.parentElement)">PENDING</div>
+                            <div onclick="updateStatus(${app.id}, 'Interviewing', this.parentElement.parentElement)">INTERVIEWING</div>
+                            <div onclick="updateStatus(${app.id}, 'Rejected', this.parentElement.parentElement)">REJECTED</div>
                         </div>
                     </div>
-                    <p class="role">${app.jobRole}</p>
-                    
-                    <div class="card-meta">
-                        ${app.location ? `<span title="Location">📍 ${app.location}</span>` : ""}
-                        ${app.appliedDate ? `<span title="Applied Date">🗓️ Applied: ${app.appliedDate}</span>` : ""}
-                        ${app.deadline ? `<span title="Deadline">⏳ Deadline: ${app.deadline}</span>` : ""}
-                    </div>
-                `;
+                    <button class="delete-btn" onclick="deleteApplication(${app.id})" title="Delete">🗑️</button>
+                </div>
+            </div>
+            <p class="role">${app.jobRole}</p>
+            <div class="card-meta">
+                ${app.location ? `<span title="Location">📍 ${app.location}</span>` : ""}
+                ${app.appliedDate ? `<span title="Applied Date">🗓️ Applied: ${app.appliedDate}</span>` : ""}
+                ${app.deadline ? `<span title="Deadline">⏳ Deadline: ${app.deadline}</span>` : ""}
+            </div>`;
           container.appendChild(card);
         });
       }

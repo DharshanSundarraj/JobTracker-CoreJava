@@ -23,29 +23,51 @@ public class JobTrackerAPI {
     static class ApplicationHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            // CORS HEADERS (Mandatory for Frontend communication)
             exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-            // Handle Preflight request
             if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
                 exchange.sendResponseHeaders(204, -1);
                 return;
             }
 
-            // Logic for GET requests
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-                // Fetch data from database
-                // List<Application> apps = DatabaseConnection.getAllApplications(); 
+                StringBuilder jsonResponse = new StringBuilder("[");
                 
-                // For demonstration, here is the JSON list structure
-                String jsonResponse = "[{\"id\": 1, \"companyName\": \"Example Corp\", \"jobRole\": \"Developer\", \"status\": \"Pending\", \"location\": \"Remote\", \"appliedDate\": \"2026-06-05\", \"deadline\": \"2026-06-20\"}]";
-                
+                // CONNECT TO DATABASE AND QUERY
+                try (java.sql.Connection conn = DatabaseConnection.getConnection();
+                     java.sql.Statement stmt = conn.createStatement();
+                     java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM applications")) {
+                    
+                    boolean first = true;
+                    while (rs.next()) {
+                        if (!first) jsonResponse.append(",");
+                        
+                        Application app = new Application(
+                            rs.getInt("id"),
+                            rs.getString("company_name"), 
+                            rs.getString("job_role"),
+                            rs.getString("status"),
+                            "", "", "", // Placeholder fields
+                            rs.getString("applied_date"),
+                            rs.getString("deadline"),
+                            rs.getString("location")
+                        );
+                        jsonResponse.append(app.toJson());
+                        first = false;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    jsonResponse = new StringBuilder("[]"); // Return empty on error
+                }
+                jsonResponse.append("]");
+
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
-                exchange.sendResponseHeaders(200, jsonResponse.length());
+                byte[] responseBytes = jsonResponse.toString().getBytes();
+                exchange.sendResponseHeaders(200, responseBytes.length);
                 try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(jsonResponse.getBytes());
+                    os.write(responseBytes);
                 }
             }
         }

@@ -1,0 +1,31 @@
+# Core Java Pipeline Tracker
+
+A full-stack job application tracking system engineered entirely from scratch without relying on heavy external frameworks like Spring Boot or React. This project demonstrates a deep, foundational understanding of web architecture, manual database bridging, and RESTful API design.
+
+## 🏗️ Technical Architecture
+
+* **The Engine (Backend):** Core Java utilizing `com.sun.net.httpserver` to build a lightweight, custom HTTP server that manually parses incoming JSON streams and handles CORS pre-flight requests.
+* **The Bridge (Database):** Raw JDBC (Java Database Connectivity) executing custom SQL queries for robust data manipulation.
+* **The Vault (Storage):** Relational MySQL database designed to persist application metadata, timelines, and statuses.
+* **The Interface (Frontend):** Vanilla JavaScript, HTML5, and CSS3 featuring a custom DOM-manipulation engine, interactive glass-morphism modals, and real-time analytical stat tracking.
+
+## ✨ Key Features
+
+* **Zero-Framework REST API:** Fully functional CRUD (Create, Read, Update, Delete) endpoints built natively in Java.
+* **Custom UI Components:** Replaced native OS-styled `<select>` dropdowns with custom, animated HTML/CSS floating menus utilizing precise z-index stacking contexts.
+* **Real-Time Analytics:** JavaScript engine that dynamically calculates and renders active pipeline statistics (Total, In Progress, Rejected) upon every database state change.
+* **Asynchronous Fetching:** Seamless, no-reload UI updates using modern JavaScript `fetch()` APIs to communicate with the Java backend.
+
+## 🚀 Why Core Java?
+
+While enterprise frameworks abstract away complexity, this application was intentionally built using raw foundational technologies to demonstrate mastery over:
+1.  Opening and managing manual database connections.
+2.  Parsing raw JSON payloads from HTTP InputStreams.
+3.  Managing HTTP Headers, Status Codes, and REST methodologies natively.
+
+## ⚙️ Local Setup
+
+1.  Execute the provided SQL schema in your local MySQL instance to create the `core_pipeline` database.
+2.  Update the `DatabaseConnection.java` file with your local MySQL credentials.
+3.  Compile and run `JobTrackerAPI.java` to spin up the server on port `8080`.
+4.  Open `index.html` in any modern web browser to access the dashboard.

@@ -87,6 +87,8 @@ public class JobTrackerAPI {
         private void handlePost(HttpExchange exchange) throws Exception {
             String body = getRequestBody(exchange);
             
+            System.out.println("INCOMING POST REQUEST: " + body);
+            
             // Extract values from the JSON string sent by the frontend
             String companyName = extractJsonString(body, "companyName");
             String jobRole = extractJsonString(body, "jobRole");
@@ -150,14 +152,14 @@ public class JobTrackerAPI {
             }
         }
 
+        // --- UTILITY METHODS ---
+        
         private String extractJsonString(String json, String key) {
-            String searchKey = "\"" + key + "\":\"";
-            int startIndex = json.indexOf(searchKey);
-            if (startIndex == -1) return "";
-            startIndex += searchKey.length();
-            int endIndex = json.indexOf("\"", startIndex);
-            if (endIndex != -1) {
-                return json.substring(startIndex, endIndex);
+            // This regex handles spaces, quotes, and formatting differences automatically
+            String pattern = "\"" + key + "\"\\s*:\\s*\"([^\"]*)\"";
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile(pattern).matcher(json);
+            if (m.find()) {
+                return m.group(1);
             }
             return "";
         }

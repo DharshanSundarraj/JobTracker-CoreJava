@@ -20,14 +20,14 @@ public class JobTrackerAPI {
     }
 
     static class ApplicationHandler implements HttpHandler {
+        
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            // CORS HEADERS - This tells the browser: "It is safe to talk to this API"
-            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-            exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "*"); // Allow everything
 
-            // Handle Preflight (OPTIONS) request
             if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
                 exchange.sendResponseHeaders(204, -1);
                 return;

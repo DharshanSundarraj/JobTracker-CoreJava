@@ -11,9 +11,9 @@ import java.util.List;
 
 public class DatabaseConnection {
     
-    private static final String URL = "jdbc:mysql://localhost:3306/core_pipeline";
-    private static final String USER = "root"; 
-    private static final String PASSWORD = "admin2026"; 
+    private static final String URL = "jdbc:mysql://core-pipeline-db-fullstack-services.g.aivencloud.com:24710/defaultdb?sslMode=REQUIRED";
+    private static final String USER = "avnadmin"; 
+    private static final String PASSWORD = "YOUR_PASSWORD_HERE";
 
     public static Connection getConnection() throws SQLException {
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } 

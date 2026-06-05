@@ -13,11 +13,15 @@ public class JobTrackerAPI {
 
     public static void main(String[] args) {
         try {
-            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+            // Read the port assigned by the Cloud, default to 8080 for local testing
+            String portEnv = System.getenv("PORT");
+            int port = (portEnv != null) ? Integer.parseInt(portEnv) : 8080;
+
+            HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
             server.createContext("/api/applications", new ApplicationHandler());
             server.setExecutor(null);
             server.start();
-            System.out.println("SUCCESS: Core Java Web Server is ALIVE!");
+            System.out.println("SUCCESS: Core Java Engine running on port " + port);
         } catch (IOException e) { e.printStackTrace(); }
     }
 
